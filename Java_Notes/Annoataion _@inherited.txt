@@ -1,0 +1,71 @@
+@Inherited is a meta-annotation in Java that indicates an annotation should be automatically passed down from a superclass to its subclasses. 
+By default, custom annotations are not inherited,
+so @Inherited is crucial, when you want to create a reusable annotation, that applies across an entire class hierarchy.
+
+How @Inherited works
+Default behavior: Without @Inherited, 
+if you place a custom annotation on a superclass, 
+any subclasses will not have that annotation. Reflection calls to retrieve the annotation from the subclass will return null.
+
+The @Inherited effect: When your custom annotation is itself annotated with @Inherited, any subclass of a decorated superclass will automatically inherit the annotation.
+When a program uses reflection ,to check for the annotation ,on a subclass, it will find it on the superclass, if not present on the subclass.
+
+Scope limitation: The @Inherited meta-annotation only affects annotations, on class declarations. 
+                  It has no effect on annotations placed on interfaces, methods, or fields.
+
+File : AnnotationDemo.java
+
+import java.lang.annotation.*;
+
+// This annotation will be inherited by subclasses.
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+public @interface InheritedAnnotation {
+}
+
+// This annotation will NOT be inherited by subclasses.
+@Retention(RetentionPolicy.RUNTIME)
+public @interface UninheritedAnnotation {
+}
+
+// Superclass is annotated with both annotations.
+@InheritedAnnotation
+@UninheritedAnnotation
+class Superclass {
+}
+
+// Subclass extends Superclass but is not explicitly annotated.
+class Subclass extends Superclass {
+}
+
+public class AnnotationDemo {
+    public static void main(String[] args) {
+        // Get the Subclass object
+        Subclass subclass = new Subclass();
+        Class<?> subclassClass = subclass.getClass();
+
+        // Check for the inherited annotation
+        System.out.println("Checking for InheritedAnnotation:");
+        if (subclassClass.getAnnotation(InheritedAnnotation.class) != null) {
+            System.out.println("Subclass inherits @InheritedAnnotation.");
+        } else {
+            System.out.println("Subclass does NOT inherit @InheritedAnnotation.");
+        }
+
+        // Check for the non-inherited annotation
+        System.out.println("\nChecking for UninheritedAnnotation:");
+        if (subclassClass.getAnnotation(UninheritedAnnotation.class) != null) {
+            System.out.println("Subclass inherits @UninheritedAnnotation.");
+        } else {
+            System.out.println("Subclass does NOT inherit @UninheritedAnnotation.");
+        }
+    }
+}
+Output:
+Checking for InheritedAnnotation:
+Subclass inherits @InheritedAnnotation.
+
+Checking for UninheritedAnnotation:
+Subclass does NOT inherit @UninheritedAnnotation.
+
+
